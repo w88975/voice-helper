@@ -23,7 +23,7 @@ namespace VoiceHelper
 
             foreach (var device in devices)
             {
-                Console.WriteLine(device);
+                this.comboBox1.Items.Add(device);
             }
         }
     }
