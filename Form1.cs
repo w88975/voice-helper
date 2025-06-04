@@ -13,6 +13,9 @@ namespace VoiceHelper
     public partial class Form1 : Form
     {
         VoiceUtils voiceUtils = VoiceUtils.Instance;
+        private NotifyIcon notifyIcon;
+        private ContextMenuStrip contextMenu;
+
         public Form1()
         {
             // 启动SocketServer（只需访问一次Instance即可自动启动）
@@ -36,7 +39,7 @@ namespace VoiceHelper
                 }));
             };
 
-            voiceUtils.OnRecording+= (channels) =>
+            voiceUtils.OnRecording += (channels) =>
             {
                 this.Invoke(new Action(() =>
                 {
@@ -47,12 +50,13 @@ namespace VoiceHelper
                     }
                 }));
             };
+
             InitializeComponent();
+            InitNotifyIcon();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
             var devices = voiceUtils.GetInputDevices();
 
             foreach (var device in devices)
@@ -63,6 +67,60 @@ namespace VoiceHelper
             if (this.comboBoxDevice.Items.Count > 0)
             {
                 this.comboBoxDevice.SelectedIndex = 0;
+            }
+        }
+
+        private void InitNotifyIcon()
+        {
+            notifyIcon = new NotifyIcon();
+            notifyIcon.Icon = SystemIcons.Application;
+            notifyIcon.Text = "VoiceHelper";
+            notifyIcon.Visible = true;
+
+            // 右键菜单
+            contextMenu = new ContextMenuStrip();
+            var showItem = new ToolStripMenuItem("显示主界面", null, (s, e) => ShowMainWindow());
+            var exitItem = new ToolStripMenuItem("退出", null, (s, e) => Application.Exit());
+            contextMenu.Items.Add(showItem);
+            contextMenu.Items.Add(new ToolStripSeparator());
+            contextMenu.Items.Add(exitItem);
+
+            notifyIcon.ContextMenuStrip = contextMenu;
+
+            notifyIcon.MouseClick += NotifyIcon_MouseClick;
+        }
+
+        private void NotifyIcon_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ShowMainWindow();
+            }
+            // 右键由 ContextMenuStrip 自动处理，无需手动弹出
+        }
+
+        private void ShowMainWindow()
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.WindowState = FormWindowState.Normal;
+            }
+            this.Show();
+            this.Activate();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            // 用户点击关闭按钮时，隐藏到托盘，不退出进程
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                this.Hide();
+                notifyIcon.ShowBalloonTip(1000, "VoiceHelper", "程序已最小化到托盘", ToolTipIcon.Info);
+            }
+            else
+            {
+                base.OnFormClosing(e);
             }
         }
     }
