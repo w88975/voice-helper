@@ -2,15 +2,14 @@
 {
     partial class Form1
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.ComboBox comboBoxDevice;
+        private System.Windows.Forms.ComboBox comboBoxSampleRate;
+        private System.Windows.Forms.Label labelDevice;
+        private System.Windows.Forms.Label labelSampleRate;
+        private System.Windows.Forms.Label labelStatus;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,71 +21,118 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.groupBox1.SuspendLayout();
+            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.labelDevice = new System.Windows.Forms.Label();
+            this.comboBoxDevice = new System.Windows.Forms.ComboBox();
+            this.labelSampleRate = new System.Windows.Forms.Label();
+            this.comboBoxSampleRate = new System.Windows.Forms.ComboBox();
+            this.labelStatus = new System.Windows.Forms.Label();
+            this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
-            // button1
+            // tableLayoutPanel
             // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button1.Location = new System.Drawing.Point(20, 258);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(329, 39);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
+            this.tableLayoutPanel.AutoSize = true;
+            this.tableLayoutPanel.ColumnCount = 2;
+            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
+            this.tableLayoutPanel.Controls.Add(this.labelDevice, 0, 0);
+            this.tableLayoutPanel.Controls.Add(this.comboBoxDevice, 1, 0);
+            this.tableLayoutPanel.Controls.Add(this.labelSampleRate, 0, 1);
+            this.tableLayoutPanel.Controls.Add(this.comboBoxSampleRate, 1, 1);
+            this.tableLayoutPanel.Controls.Add(this.labelStatus, 0, 2);
+            this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel.Name = "tableLayoutPanel";
+            this.tableLayoutPanel.RowCount = 3;
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel.Size = new System.Drawing.Size(615, 161);
+            this.tableLayoutPanel.TabIndex = 0;
             // 
-            // groupBox1
+            // labelDevice
             // 
-            this.groupBox1.Controls.Add(this.comboBox1);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Location = new System.Drawing.Point(20, 20);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(20);
-            this.groupBox1.Size = new System.Drawing.Size(329, 81);
-            this.groupBox1.TabIndex = 2;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "选择录音设备";
+            this.labelDevice.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelDevice.AutoSize = true;
+            this.labelDevice.Location = new System.Drawing.Point(3, 14);
+            this.labelDevice.Name = "labelDevice";
+            this.labelDevice.Size = new System.Drawing.Size(89, 12);
+            this.labelDevice.TabIndex = 0;
+            this.labelDevice.Text = "音频输入设备：";
             // 
-            // comboBox1
+            // comboBoxDevice
             // 
-            this.comboBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(20, 34);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(289, 20);
-            this.comboBox1.TabIndex = 0;
+            this.comboBoxDevice.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBoxDevice.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxDevice.Location = new System.Drawing.Point(187, 10);
+            this.comboBoxDevice.Name = "comboBoxDevice";
+            this.comboBoxDevice.Size = new System.Drawing.Size(425, 20);
+            this.comboBoxDevice.TabIndex = 1;
+            // 
+            // labelSampleRate
+            // 
+            this.labelSampleRate.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelSampleRate.AutoSize = true;
+            this.labelSampleRate.Location = new System.Drawing.Point(3, 54);
+            this.labelSampleRate.Name = "labelSampleRate";
+            this.labelSampleRate.Size = new System.Drawing.Size(53, 12);
+            this.labelSampleRate.TabIndex = 2;
+            this.labelSampleRate.Text = "采样率：";
+            // 
+            // comboBoxSampleRate
+            // 
+            this.comboBoxSampleRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBoxSampleRate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxSampleRate.Items.AddRange(new object[] {
+            "8000",
+            "16000",
+            "32000",
+            "44100",
+            "48000"});
+            this.comboBoxSampleRate.Location = new System.Drawing.Point(187, 50);
+            this.comboBoxSampleRate.Name = "comboBoxSampleRate";
+            this.comboBoxSampleRate.Size = new System.Drawing.Size(425, 20);
+            this.comboBoxSampleRate.TabIndex = 3;
+            // 
+            // labelStatus
+            // 
+            this.labelStatus.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelStatus.AutoSize = true;
+            this.tableLayoutPanel.SetColumnSpan(this.labelStatus, 2);
+            this.labelStatus.ForeColor = System.Drawing.Color.Gray;
+            this.labelStatus.Location = new System.Drawing.Point(3, 114);
+            this.labelStatus.Name = "labelStatus";
+            this.labelStatus.Size = new System.Drawing.Size(41, 12);
+            this.labelStatus.TabIndex = 4;
+            this.labelStatus.Text = "未运行";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(369, 317);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(615, 161);
+            this.Controls.Add(this.tableLayoutPanel);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.IsMdiContainer = true;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(400, 200);
             this.Name = "Form1";
-            this.Padding = new System.Windows.Forms.Padding(20);
-            this.Text = "Form1";
+            this.ShowIcon = false;
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.Text = "华西数医 - 音频采集驱动";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.groupBox1.ResumeLayout(false);
+            this.tableLayoutPanel.ResumeLayout(false);
+            this.tableLayoutPanel.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.ComboBox comboBox1;
     }
 }
 

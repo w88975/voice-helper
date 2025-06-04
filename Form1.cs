@@ -21,7 +21,7 @@ namespace VoiceHelper
             {
                 this.Invoke(new Action(() =>
                 {
-                    int deviceIndex = this.comboBox1.SelectedIndex;
+                    int deviceIndex = this.comboBoxDevice.SelectedIndex;
 
                     if (message == "start")
                     {
@@ -57,12 +57,12 @@ namespace VoiceHelper
 
             foreach (var device in devices)
             {
-                this.comboBox1.Items.Add(device);
+                this.comboBoxDevice.Items.Add(device);
             }
 
-            if (this.comboBox1.Items.Count > 0)
+            if (this.comboBoxDevice.Items.Count > 0)
             {
-                this.comboBox1.SelectedIndex = 0;
+                this.comboBoxDevice.SelectedIndex = 0;
             }
         }
     }
