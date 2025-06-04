@@ -1,0 +1,9 @@
+{
+  "ServerSocketUrl": "ws://172.16.20.88:36003/runtime/v1/recognize",
+  "apiKey": "456",
+  "deviceName": "15920096351",
+  "lang": "cn",
+  "productId": "123",
+  "res": "aisichuan-mix",
+  "clientId": "jvplz20nnr0da3838moxa9c1004zfbjw"
+}
