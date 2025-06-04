@@ -13,14 +13,13 @@ namespace VoiceHelper
     public partial class Form1 : Form
     {
         VoiceUtils voiceUtils = VoiceUtils.Instance;
+        SocketServer socketServer = SocketServer.Instance;
         private NotifyIcon notifyIcon;
         private ContextMenuStrip contextMenu;
 
         public Form1()
         {
-            // 启动SocketServer（只需访问一次Instance即可自动启动）
-            var server = VoiceHelper.SocketServer.Instance;
-            server.OnMessageReceived += (clientId, message) =>
+            socketServer.OnMessageReceived += (clientId, message) =>
             {
                 this.Invoke(new Action(() =>
                 {
@@ -50,9 +49,42 @@ namespace VoiceHelper
                     }
                 }));
             };
-
+            
             InitializeComponent();
             InitNotifyIcon();
+        }
+
+        private void RegistUpdateUI()
+        {
+            socketServer.OnStatusChanged += (isOnline) =>
+            {
+                Console.WriteLine("socketServer update:" + isOnline.ToString());
+                this.Invoke(new Action(() =>
+                {
+                    this.picSocketStatus.Image = isOnline
+                        ? Properties.Resources.green
+                        : Properties.Resources.gray;
+                }));
+            };
+
+            voiceUtils.OnStatusChanged += (isRecording) =>
+            {
+                Console.WriteLine("voiceUtils update:" + isRecording.ToString());
+                this.Invoke(new Action(() =>
+                {
+                    this.picRecordingStatus.Image = isRecording
+                        ? Properties.Resources.green
+                        : Properties.Resources.gray;
+                }));
+            };
+
+            socketServer.OnClientUpdated += (count) =>
+            {
+                this.Invoke(new Action(() =>
+                {
+                    this.labelClientCount.Text = $"已连接客户端 [{count}]";
+                }));
+            };
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -68,6 +100,7 @@ namespace VoiceHelper
             {
                 this.comboBoxDevice.SelectedIndex = 0;
             }
+            RegistUpdateUI();
         }
 
         private void InitNotifyIcon()

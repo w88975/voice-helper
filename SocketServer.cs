@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 namespace VoiceHelper
 {
+    public class ClientInfo
+    {
+        public string Id { get; set; }
+        public WebSocket Socket { get; set; }
+        public DateTime ConnectedAt { get; set; }
+        public string RemoteEndPoint { get; set; }
+    }
+
     /// <summary>
     /// WebSocket服务，应用全局唯一，支持消息收发
     /// </summary>
@@ -17,9 +25,38 @@ namespace VoiceHelper
         public static SocketServer Instance => _instance.Value;
 
         private readonly HttpListener _httpListener;
-        private readonly ConcurrentDictionary<string, WebSocket> _clients = new ConcurrentDictionary<string, WebSocket>();
+        private readonly ConcurrentDictionary<string, ClientInfo> _clients = new ConcurrentDictionary<string, ClientInfo>();
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private const string ListenerPrefix = "http://localhost:5000/ws/";
+
+        /// <summary>
+        /// 在线客户端数量
+        /// </summary>
+        public int OnlineClients => _clients.Count;
+
+        private bool _status = false;
+        public bool Status
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnStatusChanged?.Invoke(_status);
+                }
+            }
+        }
+
+        /// <summary>
+        /// WebSocket服务状态变更事件
+        /// </summary>
+        public event Action<bool> OnStatusChanged;
+
+        /// <summary>
+        /// 客户端列表变更事件（如有客户端上线/下线时触发）
+        /// </summary>
+        public event Action<int> OnClientUpdated;
 
         private SocketServer()
         {
@@ -38,10 +75,12 @@ namespace VoiceHelper
                 try
                 {
                     _httpListener.Start();
+                    Status = true;
                     Console.WriteLine("启动成功");
                 }
                 catch (Exception ex)
                 {
+                    Status = false;
                     Console.WriteLine("HttpListener 启动失败: " + ex);
                     return;
                 }
@@ -60,6 +99,16 @@ namespace VoiceHelper
                             context.Response.Close();
                         }
                     }
+                    catch (HttpListenerException ex) when (_cts.IsCancellationRequested)
+                    {
+                        // Stop() 正常触发，忽略异常
+                        break;
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // HttpListener 已被释放
+                        break;
+                    }
                     catch (Exception ex)
                     {
                         Console.WriteLine("监听异常: " + ex);
@@ -76,7 +125,18 @@ namespace VoiceHelper
             var wsContext = await context.AcceptWebSocketAsync(null);
             var ws = wsContext.WebSocket;
             var clientId = Guid.NewGuid().ToString();
-            _clients[clientId] = ws;
+            var remoteEndPoint = context.Request.RemoteEndPoint?.ToString() ?? "";
+
+            var clientInfo = new ClientInfo
+            {
+                Id = clientId,
+                Socket = ws,
+                ConnectedAt = DateTime.Now,
+                RemoteEndPoint = remoteEndPoint
+            };
+
+            _clients[clientId] = clientInfo;
+            OnClientUpdated?.Invoke(OnlineClients);
 
             try
             {
@@ -102,10 +162,11 @@ namespace VoiceHelper
             }
             finally
             {
-                WebSocket removed;
+                ClientInfo removed;
                 _clients.TryRemove(clientId, out removed);
                 if (ws != null)
                     ws.Dispose();
+                OnClientUpdated?.Invoke(OnlineClients);
             }
         }
 
@@ -116,8 +177,9 @@ namespace VoiceHelper
         {
             var data = Encoding.UTF8.GetBytes(message);
             var tasks = new ConcurrentBag<Task>();
-            foreach (var ws in _clients.Values)
+            foreach (var client in _clients.Values)
             {
+                var ws = client.Socket;
                 if (ws.State == WebSocketState.Open)
                 {
                     tasks.Add(ws.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None));
@@ -131,11 +193,11 @@ namespace VoiceHelper
         /// </summary>
         public async Task SendToClientAsync(string clientId, string message)
         {
-            WebSocket ws;
-            if (_clients.TryGetValue(clientId, out ws) && ws.State == WebSocketState.Open)
+            ClientInfo client;
+            if (_clients.TryGetValue(clientId, out client) && client.Socket.State == WebSocketState.Open)
             {
                 var data = Encoding.UTF8.GetBytes(message);
-                await ws.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
+                await client.Socket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
             }
         }
 
@@ -147,18 +209,51 @@ namespace VoiceHelper
         /// <summary>
         /// 停止服务
         /// </summary>
+        private bool _isStopped = false;
+
         public void Stop()
         {
-            _cts.Cancel();
-            _httpListener.Stop();
-            foreach (var ws in _clients.Values)
+            if (_isStopped) return; // 防止多次 Stop
+
+            _isStopped = true;
+
+            try
             {
-                if (ws.State == WebSocketState.Open)
+                _cts.Cancel();
+            }
+            catch { }
+
+            try
+            {
+                if (_httpListener.IsListening)
                 {
-                    ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Server stopped", CancellationToken.None).Wait();
+                    _httpListener.Stop();
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("HttpListener.Stop 异常: " + ex.Message);
+            }
+
+            Status = false;
+
+            foreach (var client in _clients.Values)
+            {
+                try
+                {
+                    if (client.Socket.State == WebSocketState.Open)
+                    {
+                        client.Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Server stopped", CancellationToken.None).Wait();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("WebSocket 关闭异常: " + ex.Message);
+                }
+            }
+
             _clients.Clear();
+            OnClientUpdated?.Invoke(OnlineClients);
         }
     }
 }

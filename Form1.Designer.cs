@@ -3,12 +3,15 @@
     partial class Form1
     {
         private System.ComponentModel.IContainer components = null;
-        private System.Windows.Forms.ComboBox comboBoxDevice;
-        private System.Windows.Forms.ComboBox comboBoxSampleRate;
+
         private System.Windows.Forms.Label labelDevice;
-        private System.Windows.Forms.Label labelSampleRate;
-        private System.Windows.Forms.Label labelStatus;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
+        private System.Windows.Forms.ComboBox comboBoxDevice;
+        private System.Windows.Forms.Label labelRate;
+        private System.Windows.Forms.ComboBox comboBoxRate;
+        private System.Windows.Forms.Label labelSocketStatus;
+        private System.Windows.Forms.PictureBox picSocketStatus;
+        private System.Windows.Forms.Label labelRecordingStatus;
+        private System.Windows.Forms.PictureBox picRecordingStatus;
 
         protected override void Dispose(bool disposing)
         {
@@ -19,120 +22,133 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
         private void InitializeComponent()
         {
-            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.labelDevice = new System.Windows.Forms.Label();
             this.comboBoxDevice = new System.Windows.Forms.ComboBox();
-            this.labelSampleRate = new System.Windows.Forms.Label();
-            this.comboBoxSampleRate = new System.Windows.Forms.ComboBox();
-            this.labelStatus = new System.Windows.Forms.Label();
-            this.tableLayoutPanel.SuspendLayout();
+            this.labelRate = new System.Windows.Forms.Label();
+            this.comboBoxRate = new System.Windows.Forms.ComboBox();
+            this.labelSocketStatus = new System.Windows.Forms.Label();
+            this.picSocketStatus = new System.Windows.Forms.PictureBox();
+            this.labelRecordingStatus = new System.Windows.Forms.Label();
+            this.picRecordingStatus = new System.Windows.Forms.PictureBox();
+            this.labelClientCount = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.picSocketStatus)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRecordingStatus)).BeginInit();
             this.SuspendLayout();
-            // 
-            // tableLayoutPanel
-            // 
-            this.tableLayoutPanel.AutoSize = true;
-            this.tableLayoutPanel.ColumnCount = 2;
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
-            this.tableLayoutPanel.Controls.Add(this.labelDevice, 0, 0);
-            this.tableLayoutPanel.Controls.Add(this.comboBoxDevice, 1, 0);
-            this.tableLayoutPanel.Controls.Add(this.labelSampleRate, 0, 1);
-            this.tableLayoutPanel.Controls.Add(this.comboBoxSampleRate, 1, 1);
-            this.tableLayoutPanel.Controls.Add(this.labelStatus, 0, 2);
-            this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel.Name = "tableLayoutPanel";
-            this.tableLayoutPanel.RowCount = 3;
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(615, 161);
-            this.tableLayoutPanel.TabIndex = 0;
             // 
             // labelDevice
             // 
-            this.labelDevice.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelDevice.AutoSize = true;
-            this.labelDevice.Location = new System.Drawing.Point(3, 14);
+            this.labelDevice.Location = new System.Drawing.Point(20, 25);
             this.labelDevice.Name = "labelDevice";
-            this.labelDevice.Size = new System.Drawing.Size(89, 12);
+            this.labelDevice.Size = new System.Drawing.Size(80, 17);
             this.labelDevice.TabIndex = 0;
-            this.labelDevice.Text = "音频输入设备：";
+            this.labelDevice.Text = "音频输入设备";
             // 
             // comboBoxDevice
             // 
-            this.comboBoxDevice.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxDevice.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxDevice.Location = new System.Drawing.Point(187, 10);
+            this.comboBoxDevice.FormattingEnabled = true;
+            this.comboBoxDevice.Location = new System.Drawing.Point(120, 22);
             this.comboBoxDevice.Name = "comboBoxDevice";
-            this.comboBoxDevice.Size = new System.Drawing.Size(425, 20);
+            this.comboBoxDevice.Size = new System.Drawing.Size(300, 25);
             this.comboBoxDevice.TabIndex = 1;
             // 
-            // labelSampleRate
+            // labelRate
             // 
-            this.labelSampleRate.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.labelSampleRate.AutoSize = true;
-            this.labelSampleRate.Location = new System.Drawing.Point(3, 54);
-            this.labelSampleRate.Name = "labelSampleRate";
-            this.labelSampleRate.Size = new System.Drawing.Size(53, 12);
-            this.labelSampleRate.TabIndex = 2;
-            this.labelSampleRate.Text = "采样率：";
+            this.labelRate.AutoSize = true;
+            this.labelRate.Location = new System.Drawing.Point(20, 65);
+            this.labelRate.Name = "labelRate";
+            this.labelRate.Size = new System.Drawing.Size(44, 17);
+            this.labelRate.TabIndex = 2;
+            this.labelRate.Text = "采样率";
             // 
-            // comboBoxSampleRate
+            // comboBoxRate
             // 
-            this.comboBoxSampleRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBoxSampleRate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxSampleRate.Items.AddRange(new object[] {
+            this.comboBoxRate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxRate.FormattingEnabled = true;
+            this.comboBoxRate.Items.AddRange(new object[] {
             "8000",
             "16000",
-            "32000",
-            "44100",
-            "48000"});
-            this.comboBoxSampleRate.Location = new System.Drawing.Point(187, 50);
-            this.comboBoxSampleRate.Name = "comboBoxSampleRate";
-            this.comboBoxSampleRate.Size = new System.Drawing.Size(425, 20);
-            this.comboBoxSampleRate.TabIndex = 3;
+            "44100"});
+            this.comboBoxRate.Location = new System.Drawing.Point(120, 62);
+            this.comboBoxRate.Name = "comboBoxRate";
+            this.comboBoxRate.Size = new System.Drawing.Size(120, 25);
+            this.comboBoxRate.TabIndex = 3;
             // 
-            // labelStatus
+            // labelSocketStatus
             // 
-            this.labelStatus.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.labelStatus.AutoSize = true;
-            this.tableLayoutPanel.SetColumnSpan(this.labelStatus, 2);
-            this.labelStatus.ForeColor = System.Drawing.Color.Gray;
-            this.labelStatus.Location = new System.Drawing.Point(3, 114);
-            this.labelStatus.Name = "labelStatus";
-            this.labelStatus.Size = new System.Drawing.Size(41, 12);
-            this.labelStatus.TabIndex = 4;
-            this.labelStatus.Text = "未运行";
+            this.labelSocketStatus.AutoSize = true;
+            this.labelSocketStatus.Location = new System.Drawing.Point(20, 110);
+            this.labelSocketStatus.Name = "labelSocketStatus";
+            this.labelSocketStatus.Size = new System.Drawing.Size(102, 17);
+            this.labelSocketStatus.TabIndex = 4;
+            this.labelSocketStatus.Text = "WebSocket 服务";
+            // 
+            // picSocketStatus
+            // 
+            this.picSocketStatus.Image = global::VoiceHelper.Properties.Resources.green;
+            this.picSocketStatus.Location = new System.Drawing.Point(130, 107);
+            this.picSocketStatus.Name = "picSocketStatus";
+            this.picSocketStatus.Size = new System.Drawing.Size(20, 20);
+            this.picSocketStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picSocketStatus.TabIndex = 5;
+            this.picSocketStatus.TabStop = false;
+            // 
+            // labelRecordingStatus
+            // 
+            this.labelRecordingStatus.AutoSize = true;
+            this.labelRecordingStatus.Location = new System.Drawing.Point(20, 145);
+            this.labelRecordingStatus.Name = "labelRecordingStatus";
+            this.labelRecordingStatus.Size = new System.Drawing.Size(56, 17);
+            this.labelRecordingStatus.TabIndex = 6;
+            this.labelRecordingStatus.Text = "录音状态";
+            // 
+            // picRecordingStatus
+            // 
+            this.picRecordingStatus.Image = global::VoiceHelper.Properties.Resources.gray;
+            this.picRecordingStatus.Location = new System.Drawing.Point(130, 142);
+            this.picRecordingStatus.Name = "picRecordingStatus";
+            this.picRecordingStatus.Size = new System.Drawing.Size(20, 20);
+            this.picRecordingStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picRecordingStatus.TabIndex = 7;
+            this.picRecordingStatus.TabStop = false;
+            // 
+            // labelClientCount
+            // 
+            this.labelClientCount.AutoSize = true;
+            this.labelClientCount.Location = new System.Drawing.Point(318, 110);
+            this.labelClientCount.Name = "labelClientCount";
+            this.labelClientCount.Size = new System.Drawing.Size(99, 17);
+            this.labelClientCount.TabIndex = 8;
+            this.labelClientCount.Text = "已连接客户端 [0]";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(615, 161);
-            this.Controls.Add(this.tableLayoutPanel);
+            this.ClientSize = new System.Drawing.Size(450, 200);
+            this.Controls.Add(this.labelClientCount);
+            this.Controls.Add(this.picRecordingStatus);
+            this.Controls.Add(this.labelRecordingStatus);
+            this.Controls.Add(this.picSocketStatus);
+            this.Controls.Add(this.labelSocketStatus);
+            this.Controls.Add(this.comboBoxRate);
+            this.Controls.Add(this.labelRate);
+            this.Controls.Add(this.comboBoxDevice);
+            this.Controls.Add(this.labelDevice);
+            this.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.IsMdiContainer = true;
             this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(400, 200);
             this.Name = "Form1";
-            this.ShowIcon = false;
-            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.Text = "华西数医 - 音频采集驱动";
+            this.Text = "Voice Helper";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.tableLayoutPanel.ResumeLayout(false);
-            this.tableLayoutPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picSocketStatus)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRecordingStatus)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
-        #endregion
+        private System.Windows.Forms.Label labelClientCount;
     }
 }
-

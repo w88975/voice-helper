@@ -17,6 +17,25 @@ namespace VoiceHelper
         private bool _isRecording = false;
         private int _channels = 1;
 
+        private bool _status = false; // 🔧 新增状态字段
+        public bool Status
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnStatusChanged?.Invoke(_status);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 新增：服务状态变更事件
+        /// </summary>
+        public event Action<bool> OnStatusChanged;
+
         /// <summary>
         /// 录音数据事件
         /// 参数: channels: List<ChannelBuffer>，每个元素包含channel索引和buffer
@@ -59,6 +78,7 @@ namespace VoiceHelper
                 return;
 
             _channels = channels;
+            Status = true;
 
             _waveIn = new WaveInEvent
             {
@@ -80,6 +100,7 @@ namespace VoiceHelper
         {
             if (!_isRecording)
                 return;
+            Status = false;
 
             _waveIn.StopRecording();
             // 事件在RecordingStopped中处理
@@ -132,7 +153,7 @@ namespace VoiceHelper
             _waveIn.RecordingStopped -= WaveIn_RecordingStopped;
             _waveIn.Dispose();
             _waveIn = null;
-
+            Status = false;
             Console.WriteLine("录音已停止");
             _isRecording = false;
         }
