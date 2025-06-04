@@ -37,7 +37,7 @@
             // button1
             // 
             this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button1.Location = new System.Drawing.Point(20, 174);
+            this.button1.Location = new System.Drawing.Point(20, 258);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(329, 39);
             this.button1.TabIndex = 0;
@@ -70,7 +70,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(369, 233);
+            this.ClientSize = new System.Drawing.Size(369, 317);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button1);
             this.Name = "Form1";
