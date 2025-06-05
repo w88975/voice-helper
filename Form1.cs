@@ -72,6 +72,10 @@ namespace VoiceHelper
                 this.Invoke(new Action(() =>
                 {
                     this.labelClientCount.Text = $"已连接客户端 [{count}]";
+                    if (count == 0)
+                    {
+                        voiceUtils.StopRecord();
+                    }
                 }));
             };
         }
