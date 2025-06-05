@@ -13,6 +13,21 @@ namespace VoiceHelper
         private bool _isClosing = false;
 
         public event Action<string> OnMessage;
+        public event Action<bool> OnConnectionStatusChanged;
+
+        private bool _isConnected = false;
+        public bool IsConnected
+        {
+            get => _isConnected;
+            private set
+            {
+                if (_isConnected != value)
+                {
+                    _isConnected = value;
+                    OnConnectionStatusChanged?.Invoke(_isConnected);
+                }
+            }
+        }
 
         public async Task InitAsync()
         {
@@ -26,6 +41,7 @@ namespace VoiceHelper
             {
                 await _ws.ConnectAsync(new Uri(config.FullUrl), _cts.Token);
                 Console.WriteLine("✅ 与语音识别服务WebSocket连接成功");
+                IsConnected = true;
 
                 string initJson = @"{
                     ""context"":{""productId"":""279607454""},
@@ -76,6 +92,7 @@ namespace VoiceHelper
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         Console.WriteLine("⚠️ WebSocket被远端关闭");
+                        IsConnected = false;
                         await CloseAsync(); // 主动关闭
                         break;
                     }
@@ -94,6 +111,7 @@ namespace VoiceHelper
                 catch (WebSocketException wex)
                 {
                     Console.WriteLine($"❌ WebSocket连接断开: {wex.Message} 状态: {_ws.State}");
+                    IsConnected = false;
                     break;
                 }
                 catch (Exception ex)
@@ -103,6 +121,7 @@ namespace VoiceHelper
                 }
             }
             Console.WriteLine("🔌 接收循环结束");
+            IsConnected = false;
         }
 
         public async Task CloseAsync()
@@ -116,6 +135,7 @@ namespace VoiceHelper
             try
             {
                 _cts.Cancel();
+                IsConnected = false;
 
                 if (_ws.State == WebSocketState.Open || _ws.State == WebSocketState.CloseReceived)
                 {

@@ -27,7 +27,8 @@ namespace VoiceHelper
 
                     if (message == "start")
                     {
-                        voiceUtils.StartRecord(deviceIndex, 16000, 1);
+                        var selectedDevice = (AudioInputDevice)this.comboBoxDevice.SelectedItem;
+                        voiceUtils.StartRecord(deviceIndex, 16000, selectedDevice.Channels);
                     }
                     else if (message == "stop")
                     {
@@ -137,7 +138,14 @@ namespace VoiceHelper
             // 右声道  
             //VoiceToText VoiceToTextRight;
 
-           
+            voiceUtils.OnStatusChanged += (isRecording) =>
+            {
+                if (!isRecording && VoiceToTextLeft != null)
+                {
+                    VoiceToTextLeft.CloseAsync().Wait();
+                    VoiceToTextLeft = null;
+                }
+            };
 
             voiceUtils.OnRecording += (channels) =>
             {
@@ -147,10 +155,19 @@ namespace VoiceHelper
                     {
                         if (channel.Channel == 0)
                         {
-                            
                             if (VoiceToTextLeft == null)
                             {
                                 VoiceToTextLeft = new VoiceToText();
+                                VoiceToTextLeft.OnConnectionStatusChanged += (isConnected) =>
+                                {
+                                    if (!isConnected)
+                                    {
+                                        this.Invoke(new Action(() =>
+                                        {
+                                            voiceUtils.StopRecord();
+                                        }));
+                                    }
+                                };
                                 await VoiceToTextLeft.InitAsync();
                                 VoiceToTextLeft.OnMessage += (text) =>
                                 {
@@ -160,8 +177,11 @@ namespace VoiceHelper
                                     }));
                                 };
                             }
-                            await Task.Delay(100);
-                            await VoiceToTextLeft.SendBuffer(channel.Buffer, 0, channel.Buffer.Length);
+                            if (VoiceToTextLeft.IsConnected)
+                            {
+                                await Task.Delay(100);
+                                await VoiceToTextLeft.SendBuffer(channel.Buffer, 0, channel.Buffer.Length);
+                            }
                         }
                     }
                 }));
