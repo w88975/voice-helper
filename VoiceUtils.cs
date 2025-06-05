@@ -66,6 +66,17 @@ namespace VoiceHelper
             return devices;
         }
 
+        private bool _enableFileSave = true;
+        public bool EnableFileSave
+        {
+            get => _enableFileSave;
+            set => _enableFileSave = value;
+        }
+
+        private WaveFileWriter _stereoWriter;
+        private WaveFileWriter _leftWriter;
+        private WaveFileWriter _rightWriter;
+
         /// <summary>
         /// 开始录音
         /// </summary>
@@ -79,6 +90,25 @@ namespace VoiceHelper
 
             _channels = channels;
             Status = true;
+
+            if (_enableFileSave)
+            {
+                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                var format = new WaveFormat(sampleRate, channels);
+
+                _stereoWriter = new WaveFileWriter($"record_stereo_{timestamp}.wav", format);
+
+                if (channels == 2)
+                {
+                    _leftWriter = new WaveFileWriter($"record_left_{timestamp}.wav", new WaveFormat(sampleRate, 1));
+                    _rightWriter = new WaveFileWriter($"record_right_{timestamp}.wav", new WaveFormat(sampleRate, 1));
+                }
+                else if (channels == 1)
+                {
+                    _leftWriter = new WaveFileWriter($"record_mono_{timestamp}.wav", new WaveFormat(sampleRate, 1));
+                }
+            }
+
 
             _waveIn = new WaveInEvent
             {
@@ -112,8 +142,12 @@ namespace VoiceHelper
             Console.WriteLine($"录音数据: {e.Buffer.Length} 字节, 有效数据: {e.BytesRecorded} 字节");
 
             List<ChannelBuffer> channelBuffers = new List<ChannelBuffer>();
-
-            if (_channels == 2)
+            if (_enableFileSave)
+            {
+                _stereoWriter?.Write(e.Buffer, 0, e.BytesRecorded);
+                _stereoWriter?.Flush();
+            }
+                if (_channels == 2)
             {
                 // 16位采样，每帧4字节（左2字节+右2字节）
                 int bytesPerSample = 2; // 16bit
@@ -134,6 +168,14 @@ namespace VoiceHelper
 
                 channelBuffers.Add(new ChannelBuffer { Channel = 0, Buffer = leftBuffer });
                 channelBuffers.Add(new ChannelBuffer { Channel = 1, Buffer = rightBuffer });
+
+                if (_enableFileSave)
+                {
+                    _leftWriter?.Write(leftBuffer, 0, leftBuffer.Length);
+                    _leftWriter?.Flush();
+                    _rightWriter?.Write(rightBuffer, 0, rightBuffer.Length);
+                    _rightWriter?.Flush();
+                }
             }
             else if (_channels == 1)
             {
@@ -141,7 +183,14 @@ namespace VoiceHelper
                 byte[] monoBuffer = new byte[e.BytesRecorded];
                 Array.Copy(e.Buffer, 0, monoBuffer, 0, e.BytesRecorded);
                 channelBuffers.Add(new ChannelBuffer { Channel = 0, Buffer = monoBuffer });
+
+                if (_enableFileSave)
+                {
+                    _leftWriter?.Write(monoBuffer, 0, monoBuffer.Length);
+                    _leftWriter?.Flush();
+                }
             }
+
 
             // 触发事件
             OnRecording?.Invoke(channelBuffers);
@@ -153,6 +202,18 @@ namespace VoiceHelper
             _waveIn.RecordingStopped -= WaveIn_RecordingStopped;
             _waveIn.Dispose();
             _waveIn = null;
+
+            if (_enableFileSave)
+            {
+                _stereoWriter?.Dispose();
+                _leftWriter?.Dispose();
+                _rightWriter?.Dispose();
+                _stereoWriter = null;
+                _leftWriter = null;
+                _rightWriter = null;
+            }
+
+
             Status = false;
             Console.WriteLine("录音已停止");
             _isRecording = false;

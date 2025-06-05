@@ -126,7 +126,7 @@
             // 
             // Form1
             // 
-            this.ClientSize = new System.Drawing.Size(450, 200);
+            this.ClientSize = new System.Drawing.Size(450, 184);
             this.Controls.Add(this.labelClientCount);
             this.Controls.Add(this.picRecordingStatus);
             this.Controls.Add(this.labelRecordingStatus);
