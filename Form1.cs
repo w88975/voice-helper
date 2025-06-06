@@ -135,19 +135,23 @@ namespace VoiceHelper
             this.Activate();
         }
 
-        private void  startVoiceServer()
+        private void startVoiceServer()
         {
             // 左声道
             VoiceToText VoiceToTextLeft = null; // Initialize the variable to null to avoid CS0165 error.
             // 右声道  
-            //VoiceToText VoiceToTextRight;
+            VoiceToText VoiceToTextRight = null;
+
+            Boolean isAllClose = false;
 
             voiceUtils.OnStatusChanged += (isRecording) =>
             {
                 if (!isRecording && VoiceToTextLeft != null)
                 {
                     VoiceToTextLeft.CloseAsync().Wait();
+                    VoiceToTextRight.CloseAsync().Wait();
                     VoiceToTextLeft = null;
+                    VoiceToTextRight = null;
                 }
             };
 
@@ -172,19 +176,74 @@ namespace VoiceHelper
                                         }));
                                     }
                                 };
-                                await VoiceToTextLeft.InitAsync();
+                                await VoiceToTextLeft.InitAsync(autoReconnect: true);
                                 VoiceToTextLeft.OnMessage += (text) =>
                                 {
                                     this.Invoke(new Action(async () =>
                                     {
-                                        await socketServer.BroadcastAsync(text);
+                                        string initJson = $@"{{
+                                            ""channel"": ""{channel.Channel}"",
+                                            ""data"": {text}
+                                        }}";
+                                        await socketServer.BroadcastAsync(initJson);
                                     }));
                                 };
                             }
-                            if (VoiceToTextLeft.IsConnected)
+                            if (VoiceToTextLeft != null && VoiceToTextLeft.IsConnected )
                             {
                                 await Task.Delay(100);
-                                await VoiceToTextLeft.SendBuffer(channel.Buffer, 0, channel.Buffer.Length);
+                                try
+                                {
+                                    await VoiceToTextLeft?.SendBuffer(channel.Buffer, 0, channel.Buffer.Length);
+                                } catch
+                                {
+                                    // 发送失败可能是因为连接断开，忽略异常
+                                    Console.WriteLine("发送左声道数据失败，可能是连接已断开。");
+                                }
+                                
+                            }
+                        }
+                        if (channel.Channel == 1)
+                        {
+                            if (VoiceToTextRight == null)
+                            {
+                                VoiceToTextRight = new VoiceToText();
+                                VoiceToTextRight.OnConnectionStatusChanged += (isConnected) =>
+                                {
+                                    if (!isConnected)
+                                    {
+                                        this.Invoke(new Action(() =>
+                                        {
+                                            voiceUtils.StopRecord();
+                                        }));
+                                    }
+                                };
+                                await VoiceToTextRight.InitAsync(autoReconnect: true);
+                                VoiceToTextRight.OnMessage += (text) =>
+                                {
+                                    this.Invoke(new Action(async () =>
+                                    {
+                                        string initJson = $@"{{
+                                            ""channel"": ""{channel.Channel}"",
+                                            ""data"": {text}
+                                        }}";
+                                        await socketServer.BroadcastAsync(initJson);
+                                    }));
+                                };
+                            }
+                            if (VoiceToTextRight.IsConnected )
+                            {
+                                await Task.Delay(100);
+                                // 发送右声道数据
+                                try
+                                {
+                                    await VoiceToTextRight?.SendBuffer(channel.Buffer, 0, channel.Buffer.Length);
+                                } catch
+                                {
+                                    // 发送失败可能是因为连接断开，忽略异常
+                                    Console.WriteLine("发送右声道数据失败，可能是连接已断开。");
+                                }
+                                
                             }
                         }
                     }

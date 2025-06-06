@@ -11,6 +11,9 @@ namespace VoiceHelper
         private ClientWebSocket _ws;
         private CancellationTokenSource _cts;
         private bool _isClosing = false;
+        private bool _autoReconnect = true;
+        private const int MaxReconnectAttempts = 5;
+        private const int ReconnectDelayMs = 3000;
 
         public event Action<string> OnMessage;
         public event Action<bool> OnConnectionStatusChanged;
@@ -29,20 +32,39 @@ namespace VoiceHelper
             }
         }
 
-        public async Task InitAsync()
+        public async Task InitAsync(bool autoReconnect = true)
         {
-            AudioServerConfig config = new AudioServerConfig();
-            Console.WriteLine($"WebSocket URL: {config.FullUrl}");
+            _autoReconnect = autoReconnect;
+            await ConnectWithRetryAsync();
+        }
 
-            _ws = new ClientWebSocket();
-            _cts = new CancellationTokenSource();
+        private async Task ConnectWithRetryAsync(int attemptCount = 0)
+        {
+            if (_isClosing) return;
 
             try
             {
+                if (_ws != null)
+                {
+                    _ws.Dispose();
+                    _ws = null;
+                }
+
+                if (_cts != null)
+                {
+                    _cts.Dispose();
+                }
+                _cts = new CancellationTokenSource();
+
+                AudioServerConfig config = new AudioServerConfig();
+                Console.WriteLine($"WebSocket URL: {config.FullUrl}");
+
+                _ws = new ClientWebSocket();
                 await _ws.ConnectAsync(new Uri(config.FullUrl), _cts.Token);
-                Console.WriteLine("✅ 与语音识别服务WebSocket连接成功");
+                Console.WriteLine($"✅ 与语音识别服务WebSocket连接成功 (尝试次数: {attemptCount + 1})");
                 IsConnected = true;
 
+                // 连接成功后发送初始化json
                 string initJson = @"{
                     ""context"":{""productId"":""279607454""},
                     ""request"":{
@@ -59,6 +81,18 @@ namespace VoiceHelper
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ WebSocket连接失败: {ex.Message}");
+                IsConnected = false;
+
+                if (_autoReconnect && attemptCount < MaxReconnectAttempts)
+                {
+                    Console.WriteLine($"⏳ {ReconnectDelayMs / 1000}秒后尝试重连 ({attemptCount + 1}/{MaxReconnectAttempts})");
+                    await Task.Delay(ReconnectDelayMs);
+                    await ConnectWithRetryAsync(attemptCount + 1);
+                }
+                else if (attemptCount >= MaxReconnectAttempts)
+                {
+                    Console.WriteLine("❌ 重连次数已达上限，停止重连");
+                }
             }
         }
 
@@ -77,13 +111,24 @@ namespace VoiceHelper
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ 发送音频数据异常: {ex.Message}");
+                await HandleConnectionFailure();
+            }
+        }
+
+        private async Task HandleConnectionFailure()
+        {
+            IsConnected = false;
+            if (_autoReconnect && !_isClosing)
+            {
+                Console.WriteLine("🔄 检测到连接断开，准备重连");
+                await ConnectWithRetryAsync();
             }
         }
 
         private async Task ReceiveLoopAsync()
         {
             var buffer = new byte[4096];
-            while (_ws != null && _ws.State == WebSocketState.Open)
+            while (_ws != null && _ws.State == WebSocketState.Open && !_isClosing)
             {
                 try
                 {
@@ -91,9 +136,8 @@ namespace VoiceHelper
 
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        Console.WriteLine("⚠️ WebSocket被远端关闭");
-                        IsConnected = false;
-                        await CloseAsync(); // 主动关闭
+                        Console.WriteLine("⚠️ WebSocket被远端关闭 v2t");
+                        await HandleConnectionFailure();
                         break;
                     }
                     else if (result.MessageType == WebSocketMessageType.Text)
@@ -110,18 +154,22 @@ namespace VoiceHelper
                 }
                 catch (WebSocketException wex)
                 {
-                    Console.WriteLine($"❌ WebSocket连接断开: {wex.Message} 状态: {_ws.State}");
-                    IsConnected = false;
+                    Console.WriteLine($"❌ WebSocket连接断开: {wex.Message} 状态: {_ws?.State}");
+                    await HandleConnectionFailure();
                     break;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"❌ WebSocket接收异常: {ex.Message}");
+                    await HandleConnectionFailure();
                     break;
                 }
             }
             Console.WriteLine("🔌 接收循环结束");
-            IsConnected = false;
+            if (!_isClosing)
+            {
+                await HandleConnectionFailure();
+            }
         }
 
         public async Task CloseAsync()
@@ -130,11 +178,12 @@ namespace VoiceHelper
                 return;
 
             _isClosing = true;
+            _autoReconnect = false; // 禁用重连
             Console.WriteLine("🛑 正在关闭WebSocket连接...");
 
             try
             {
-                _cts.Cancel();
+                _cts?.Cancel();
                 IsConnected = false;
 
                 if (_ws.State == WebSocketState.Open || _ws.State == WebSocketState.CloseReceived)
@@ -148,10 +197,16 @@ namespace VoiceHelper
             }
             finally
             {
-                _ws.Dispose();
-                _ws = null;
-                _cts.Dispose();
-                _cts = null;
+                if (_ws != null)
+                {
+                    _ws.Dispose();
+                    _ws = null;
+                }
+                if (_cts != null)
+                {
+                    _cts.Dispose();
+                    _cts = null;
+                }
                 _isClosing = false;
                 Console.WriteLine("✅ WebSocket连接已关闭");
             }

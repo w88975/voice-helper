@@ -58,9 +58,23 @@ namespace VoiceHelper
         /// </summary>
         public event Action<int> OnClientUpdated;
 
+        private string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            return "127.0.0.1";
+        }
+
         private SocketServer()
         {
             _httpListener = new HttpListener();
+            string ip = GetLocalIPAddress();
             _httpListener.Prefixes.Add(ListenerPrefix);
             Start();
         }
